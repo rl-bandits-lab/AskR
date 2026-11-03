@@ -2,9 +2,9 @@
 
 # RLVR from Within: Learning to Ask to Elicit Intrinsic Rewards for Test-Time Reasoning
 
-Kuang-Da Wang<sup>1,†</sup>, Kai-Jie Lin<sup>2,†</sup>, Guo-Xun Ko<sup>3</sup>, Yu-Heng Lin<sup>2</sup>, Yu Heng Hung<sup>1</sup>,
+[Kuang-Da Wang](https://kuangdw.github.io/)<sup>1,†</sup>, [Kai-Jie Lin](https://kjldefeated.github.io/)<sup>2,†</sup>, Guo-Xun Ko<sup>3</sup>, Yu-Heng Lin<sup>2</sup>, Yu Heng Hung<sup>1</sup>,
 Travis M. Bartley<sup>2</sup>, Shuoyang Ding<sup>2</sup>, Yu-Chiang Frank Wang<sup>2,3</sup>,
-Chao-Han Huck Yang<sup>2</sup>, Guan-Ting Liu<sup>2</sup>, Wen-Chih Peng<sup>1</sup>, Ping-Chun Hsieh<sup>1</sup>
+Chao-Han Huck Yang<sup>2</sup>, Guan-Ting Liu<sup>2</sup>, Wen-Chih Peng<sup>1</sup>, [Ping-Chun Hsieh](https://pinghsieh.github.io/)<sup>1</sup>
 
 <sup>1</sup>National Yang Ming Chiao Tung University &nbsp; <sup>2</sup>NVIDIA &nbsp; <sup>3</sup>National Taiwan University &nbsp; <sup>†</sup>Equal contribution
 
