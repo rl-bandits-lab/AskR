@@ -21,10 +21,8 @@ sub-question policy that structures reasoning into sub-questions and sub-answers
 reasoner checks every SubQA, and the mean of these checks guides test-time optimization.
 
 - **Better than PRMs:** with the same optimizer, AskR beats PRM-guided reasoning by **+7.12 points on average**, and by up to +9.18.
-- **Data-efficient:** in its strongest setting, AskR beats RLVR on average while using only **5%** (text) and **17%** (vision) of RLVR's training data.
+- **Data-efficient:** AskR beats RLVR on average while using only **5%** (text) and **17%** (vision) of RLVR's training data.
 - **Reusable:** one 4B AskR steers Qwen3 reasoners from 1.7B to 32B.
-
----
 
 ## Installation
 
