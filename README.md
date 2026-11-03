@@ -26,25 +26,6 @@ reasoner checks every SubQA, and the mean of these checks guides test-time optim
 
 ---
 
-## Contents
-
-- [How it works](#how-it-works)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Data](#data)
-
-## How it works
-
-1. **Ask.** The asker (base model + LoRA) writes up to 10 sub-questions for problem $x$.
-2. **Answer.** The frozen reasoner answers them in order and then gives the final answer.
-3. **Verify.** The reasoner judges every SubQA pair as true or false. The intrinsic reward (Eq. 4) is the
-   mean verdict: $r_\phi(x,\tau) = \frac{1}{|\tau|}\sum_i v_i$.
-4. **Train (GRPO).** Only final-answer correctness supervises the asker. The training reward (Eq. 5) is
-   $r_\phi$ when the answer is correct and $-r_\phi$ when it is wrong. No sub-question labels are used.
-5. **Test time (TMPC).** Over 3 iterations, high-reward SubQAs are stored in a buffer with opening,
-   middle and ending slots and fed back as in-context guidance. A final rollout then picks the answer.
-   Selection uses only $r_\phi$; ground truth is never read.
-
 ## Installation
 
 ```bash
