@@ -1,0 +1,38 @@
+# Pinned together: unsloth, trl, vllm and torchao break each other across versions.
+
+# Core (the default PyPI torch wheel is built for CUDA 12.8)
+torch==2.8.0
+torchvision==0.23.0
+torchao==0.14.1
+numpy==1.26.4
+pandas>=2.0,<3
+pyarrow==21.0.0
+pillow==10.4.0
+
+# Hugging Face ecosystem
+transformers==4.57.1
+trl==0.24.0
+peft==0.17.1
+datasets==4.3.0
+accelerate==1.10.1
+huggingface-hub==0.34.4
+sentencepiece>=0.1.99
+protobuf>=3.20.0
+
+# Training
+unsloth==2025.12.5
+unsloth_zoo==2025.12.4
+wandb==0.19.8
+
+# Inference
+vllm==0.11.0
+
+# Verification
+math-verify==0.8.0
+latex2sympy2_extended==1.10.2
+openai==1.99.1
+pydantic==2.11.7
+tqdm>=4.65.0
+
+# Tests
+pytest>=8.0
