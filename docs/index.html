@@ -254,13 +254,142 @@
           thing trained. The reasoner \(\pi_\theta\) answers, verifies and stays frozen throughout.</p>
       </div>
 
-      <figure class="fig">
-        <img src="static/images/framework.webp" width="1999" height="1060" loading="lazy"
-             alt="AskR training: the asker writes sub-questions, the reasoner answers and self-verifies them, and the intrinsic reward is signed by final-answer correctness to form the training reward. Test time: the learned AskR and a test-time optimizer use the intrinsic reward to select better reasoning.">
-        <figcaption><b>Training and test time.</b>
-          <span>During training, only final-answer correctness supervises the
-          asker. At test time the verifier is gone; the optimizer uses the elicited reward alone.</span></figcaption>
-      </figure>
+      <div class="fw-wrap">
+        <div class="seg view-toggle" role="group" aria-label="Framework view">
+          <button type="button" data-view="anim" aria-pressed="true">Animation</button>
+          <button type="button" data-view="paper" aria-pressed="false">Paper figure</button>
+        </div>
+
+        <div class="player fw view" data-view="anim" data-steps="9" data-autoplay data-loop>
+          <div class="fw-stage">
+            <p class="fw-title">
+              <span class="reveal" data-from="0" data-to="5">Training: AskR learns what to ask</span>
+              <span class="reveal" data-from="6">Test time: the intrinsic reward picks the reasoning</span>
+            </p>
+
+            <div class="fw-actors">
+              <div class="node prob">
+                <b>Problem</b>
+                <span class="skel"><i></i><i></i></span>
+                <span class="key reveal" data-from="0" data-to="5">Answer key</span>
+                <span class="key off reveal" data-from="6">No answer key</span>
+              </div>
+              <div class="node askr" data-active="1,5,6">
+                <span class="badge" aria-hidden="true">?</span>
+                <div><b>AskR</b><small>writes sub-questions</small></div>
+                <span class="tag reveal" data-from="5">trained</span>
+              </div>
+              <div class="node reasoner" data-active="2,3,6,7">
+                <span class="badge" aria-hidden="true">A</span>
+                <div><b>Reasoner</b><small>answers and self-verifies</small></div>
+                <span class="tag frozen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>frozen</span>
+              </div>
+            </div>
+
+            <svg class="fw-arrow" data-active="1,2,6" viewBox="0 0 36 24" aria-hidden="true"><path d="M2 12h28m-7-7 7 7-7 7"/></svg>
+
+            <div class="fw-mid">
+              <div class="panel reveal" data-from="1" data-to="5">
+                <p class="panel-title">One SubQA trajectory</p>
+                <ol class="sqa">
+                  <li><span class="part reveal" data-from="1" style="--d: 0"><b class="chip q">q1</b><i class="line"></i></span><span class="part reveal" data-from="2" style="--d: 0"><b class="chip a">a1</b><i class="line"></i></span><span class="v ok reveal" data-from="3" style="--d: 0">✓</span></li>
+                  <li><span class="part reveal" data-from="1" style="--d: 1"><b class="chip q">q2</b><i class="line"></i></span><span class="part reveal" data-from="2" style="--d: 1"><b class="chip a">a2</b><i class="line"></i></span><span class="v ok reveal" data-from="3" style="--d: 1">✓</span></li>
+                  <li><span class="part reveal" data-from="1" style="--d: 2"><b class="chip q">q3</b><i class="line"></i></span><span class="part reveal" data-from="2" style="--d: 2"><b class="chip a">a3</b><i class="line"></i></span><span class="v no reveal" data-from="3" style="--d: 2">✗</span></li>
+                  <li><span class="part reveal" data-from="1" style="--d: 3"><b class="chip q">q4</b><i class="line"></i></span><span class="part reveal" data-from="2" style="--d: 3"><b class="chip a">a4</b><i class="line"></i></span><span class="v ok reveal" data-from="3" style="--d: 3">✓</span></li>
+                </ol>
+                <p class="yhat reveal" data-from="2" style="--d: 4">Final answer <b>B</b></p>
+              </div>
+
+              <div class="panel reveal" data-from="6">
+                <p class="panel-title">Sampled trajectories</p>
+                <ol class="trajs">
+                  <li class="reveal" data-from="6" style="--d: 0"><span class="tid">τ1</span><span class="dots" data-active="7,8"><i class="ok"></i><i class="no"></i><i class="no"></i><i class="ok"></i></span><span class="ans">A</span><span class="score reveal" data-from="7" style="--d: 0"><span class="bar"><i class="grow" style="width: 50%"></i></span>0.50</span></li>
+                  <li class="reveal" data-from="6" style="--d: 1"><span class="tid">τ2</span><span class="dots" data-active="7,8"><i class="ok"></i><i class="ok"></i><i class="no"></i><i class="ok"></i></span><span class="ans">B</span><span class="score reveal" data-from="7" style="--d: 1"><span class="bar"><i class="grow" style="width: 75%"></i></span>0.75</span></li>
+                  <li class="reveal" data-from="6" style="--d: 2"><span class="tid">τ3</span><span class="dots" data-active="7,8"><i class="ok"></i><i class="ok"></i><i class="ok"></i><i class="ok"></i></span><span class="ans">B</span><span class="score reveal" data-from="7" style="--d: 2"><span class="bar"><i class="grow" style="width: 100%"></i></span>1.00</span><span class="pick reveal" data-from="8" aria-hidden="true"></span></li>
+                  <li class="reveal" data-from="6" style="--d: 3"><span class="tid">τ4</span><span class="dots" data-active="7,8"><i class="no"></i><i class="ok"></i><i class="no"></i><i class="no"></i></span><span class="ans">C</span><span class="score reveal" data-from="7" style="--d: 3"><span class="bar"><i class="grow" style="width: 25%"></i></span>0.25</span></li>
+                </ol>
+              </div>
+            </div>
+
+            <svg class="fw-arrow" data-active="3,4,7,8" viewBox="0 0 36 24" aria-hidden="true"><path d="M2 12h28m-7-7 7 7-7 7"/></svg>
+
+            <div class="fw-out">
+              <div class="panel reveal" data-from="3" data-to="5">
+                <p class="panel-title">Intrinsic reward</p>
+                <span class="gauge"><i class="grow" style="width: 75%"></i></span>
+                <p class="num">3 of 4 checks pass: r = 0.75</p>
+                <div class="reveal" data-from="4">
+                  <p class="panel-title">Signed by the final answer</p>
+                  <p class="match">B matches the answer key</p>
+                  <div class="meter"><span class="zero"></span><span class="bar grow" style="left: 50%; width: 37.5%; background: var(--sage)"></span></div>
+                  <div class="meter-scale"><span>−1</span><span>0</span><span>+1</span></div>
+                  <p class="num">Training reward +0.75. A wrong answer would get −0.75.</p>
+                </div>
+              </div>
+
+              <div class="panel reveal" data-from="7">
+                <p class="panel-title">Test-time optimizer</p>
+                <p class="num">Ranks trajectories by intrinsic reward and keeps the best, for example with Best-of-N, TPO or TMPC.</p>
+                <p class="out reveal" data-from="8">Answer B, from τ3</p>
+              </div>
+            </div>
+
+            <p class="fw-back reveal" data-from="5" data-to="5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H5m6-6-6 6 6 6"/></svg>
+              The training reward updates AskR only. The reasoner stays frozen.
+            </p>
+          </div>
+
+          <div class="rail fw-rail">
+            <div class="phase" style="--n: 6">
+              <span>Training</span>
+              <ol aria-label="Training steps">
+                <li><button type="button">Problem</button></li>
+                <li><button type="button">Ask</button></li>
+                <li><button type="button">Answer</button></li>
+                <li><button type="button">Verify</button></li>
+                <li><button type="button">Sign</button></li>
+                <li><button type="button">Update</button></li>
+              </ol>
+            </div>
+            <div class="phase" style="--n: 3">
+              <span>Test time</span>
+              <ol aria-label="Test-time steps">
+                <li><button type="button">Sample</button></li>
+                <li><button type="button">Score</button></li>
+                <li><button type="button">Select</button></li>
+              </ol>
+            </div>
+          </div>
+          <div class="controls">
+            <div class="ctl">
+              <button type="button" class="prev" aria-label="Previous step"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+              <button type="button" class="play" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+              <button type="button" class="next" aria-label="Next step"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+            </div>
+            <p class="caption" aria-live="polite"></p>
+          </div>
+          <template class="captions">
+            <p>Training starts from a problem and its answer key. Only the final answer is ever checked against the key.</p>
+            <p>AskR reads the problem and writes sub-questions. Asking is its only job.</p>
+            <p>The frozen reasoner answers every sub-question, then the problem itself, in one pass.</p>
+            <p>The same reasoner checks each SubQA pair. The fraction it accepts is the intrinsic reward: 3 of 4 here.</p>
+            <p>The final answer is compared with the key. A right answer keeps the reward positive, and a wrong one flips it negative.</p>
+            <p>The signed reward updates AskR alone. It learns to ask questions whose checks can be trusted, with no sub-question labels.</p>
+            <p>At test time there is no answer key. The trained AskR and the same reasoner sample several trajectories.</p>
+            <p>Each trajectory scores itself: the reasoner checks its SubQA pairs, and the fraction accepted is its intrinsic reward.</p>
+            <p>A test-time optimizer follows the reward and returns the answer of the best trajectory. No external reward model is needed.</p>
+          </template>
+        </div>
+
+        <figure class="fig view" data-view="paper" hidden>
+          <img src="static/images/framework.webp" width="1999" height="1060" loading="lazy"
+               alt="AskR training: the asker writes sub-questions, the reasoner answers and self-verifies them, and the intrinsic reward is signed by final-answer correctness to form the training reward. Test time: the learned AskR and a test-time optimizer use the intrinsic reward to select better reasoning.">
+          <figcaption><b>Training and test time.</b>
+            <span>During training, only final-answer correctness supervises AskR.
+            At test time the answer key is gone; the optimizer uses the elicited reward alone.</span></figcaption>
+        </figure>
+      </div>
 
       <ol class="steps">
         <li>
