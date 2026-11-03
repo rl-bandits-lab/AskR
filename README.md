@@ -9,7 +9,7 @@ Chao-Han Huck Yang<sup>2</sup>, Guan-Ting Liu<sup>2</sup>, Wen-Chih Peng<sup>1</
 <sup>1</sup>National Yang Ming Chiao Tung University &nbsp; <sup>2</sup>NVIDIA &nbsp; <sup>3</sup>National Taiwan University &nbsp; <sup>†</sup>Equal contribution
 
 [![Oral](https://img.shields.io/badge/Oral-Meta--Agents%20Workshop%20%40%20NeurIPS%202026-8A2BE2)](https://meta-agents-workshop.github.io/)
-[![Paper](https://img.shields.io/badge/Paper-PDF-b31b1b)](AskR_paper.pdf)
+[![Paper](https://img.shields.io/badge/Paper-PDF-b31b1b)](docs/static/pdfs/AskR_paper.pdf)
 [![Project Page](https://img.shields.io/badge/Project-Page-6a4c9c)](https://rl-bandits-lab.github.io/AskR/)
 <img src="assets/teaser.png" width="90%" alt="Learning a process reward model versus learning what to ask">
 
