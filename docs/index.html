@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AskR: Learning to Ask to Elicit Intrinsic Rewards for Test-Time Reasoning</title>
+  <meta name="description" content="AskR learns which sub-questions to ask so that a frozen reasoner's own self-verification becomes a correctness-aligned intrinsic reward for test-time reasoning. Oral at the Meta-Agents Workshop, NeurIPS 2026.">
+  <meta name="author" content="Kuang-Da Wang, Kai-Jie Lin, Guo-Xun Ko, Yu-Heng Lin, Yu Heng Hung, Travis M. Bartley, Shuoyang Ding, Yu-Chiang Frank Wang, Chao-Han Huck Yang, Guan-Ting Liu, Wen-Chih Peng, Ping-Chun Hsieh">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="AskR">
+  <meta property="og:title" content="RLVR from Within: Learning to Ask to Elicit Intrinsic Rewards for Test-Time Reasoning">
+  <meta property="og:description" content="Learn what to ask, and a frozen reasoner's self-verification becomes a reward you can optimize at test time.">
+  <meta property="og:url" content="https://rl-bandits-lab.github.io/AskR/">
+  <meta property="og:image" content="https://rl-bandits-lab.github.io/AskR/static/images/concept.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RLVR from Within: Learning to Ask (AskR)">
+  <meta name="twitter:description" content="Learn what to ask, and a frozen reasoner's self-verification becomes a reward you can optimize at test time.">
+  <meta name="twitter:image" content="https://rl-bandits-lab.github.io/AskR/static/images/concept.webp">
+
+  <link rel="icon" href="https://avatars.githubusercontent.com/u/126187030?v=4" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="https://avatars.githubusercontent.com/u/126187030?v=4" sizes="180x180">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="static/css/style.css">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script defer src="static/js/main.js"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "RLVR from Within: Learning to Ask to Elicit Intrinsic Rewards for Test-Time Reasoning",
+    "url": "https://rl-bandits-lab.github.io/AskR/",
+    "isAccessibleForFree": true,
+    "author": [
+      {"@type": "Person", "name": "Kuang-Da Wang"},
+      {"@type": "Person", "name": "Kai-Jie Lin"},
+      {"@type": "Person", "name": "Guo-Xun Ko"},
+      {"@type": "Person", "name": "Yu-Heng Lin"},
+      {"@type": "Person", "name": "Yu Heng Hung"},
+      {"@type": "Person", "name": "Travis M. Bartley"},
+      {"@type": "Person", "name": "Shuoyang Ding"},
+      {"@type": "Person", "name": "Yu-Chiang Frank Wang"},
+      {"@type": "Person", "name": "Chao-Han Huck Yang"},
+      {"@type": "Person", "name": "Guan-Ting Liu"},
+      {"@type": "Person", "name": "Wen-Chih Peng"},
+      {"@type": "Person", "name": "Ping-Chun Hsieh"}
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<main id="main">
+
+  <header class="hero wrap">
+    <a class="venue" href="https://meta-agents-workshop.github.io/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"/><path d="m8.2 13.9-1.2 7.1 5-3 5 3-1.2-7.1"/></svg>
+      Oral at the Meta-Agents Workshop, NeurIPS 2026
+    </a>
+
+    <h1>
+      <span class="title-main">RLVR from Within</span>
+      <span class="title-sub">Learning to Ask to Elicit Intrinsic Rewards for Test-Time Reasoning</span>
+    </h1>
+
+    <p class="authors">
+      <span>Kuang-Da Wang<sup>1,†</sup></span>,
+      <span>Kai-Jie Lin<sup>2,†</sup></span>,
+      <span>Guo-Xun Ko<sup>3</sup></span>,
+      <span>Yu-Heng Lin<sup>2</sup></span>,
+      <span>Yu Heng Hung<sup>1</sup></span>,
+      <span>Travis M. Bartley<sup>2</sup></span>,
+      <span>Shuoyang Ding<sup>2</sup></span>,
+      <span>Yu-Chiang Frank Wang<sup>2,3</sup></span>,
+      <span>Chao-Han Huck Yang<sup>2</sup></span>,
+      <span>Guan-Ting Liu<sup>2</sup></span>,
+      <span>Wen-Chih Peng<sup>1</sup></span>,
+      <span>Ping-Chun Hsieh<sup>1</sup></span>
+    </p>
+    <p class="affils"><sup>1</sup>National Yang Ming Chiao Tung University &nbsp; <sup>2</sup>NVIDIA &nbsp; <sup>3</sup>National Taiwan University &nbsp; <sup>†</sup>Equal contribution</p>
+
+    <nav class="links" aria-label="Paper resources">
+      <a class="btn" href="static/pdfs/AskR_paper.pdf">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>
+        Paper
+      </a>
+      <a class="btn" href="https://github.com/rl-bandits-lab/AskR">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+        Code
+      </a>
+      <a class="btn quiet" href="#case">Case studies</a>
+      <!-- <a class="btn quiet" href="#citation">BibTeX</a> -->
+    </nav>
+
+    <div class="thesis">
+      <blockquote>
+        The answer's in the question.
+        <span>AskR learns to ask the right one.</span>
+      </blockquote>
+      <p>
+        A process reward model has to learn, from final outcomes alone, how much each intermediate
+        thought is worth. AskR sidesteps that credit-assignment problem. It learns which
+        sub-questions to ask so that a frozen reasoner's own yes/no checks on each answer become
+        predictive of final correctness, and then lets a test-time optimizer use those checks as its reward.
+      </p>
+    </div>
+
+    <ul class="findings">
+      <li><b>+7.12</b><span>points over PRM guidance with the same optimizer, on average across BoN, TPO and TMPC (up to +9.18)</span></li>
+      <li><b>5% / 17%</b><span>of RLVR's training data on text and vision tasks, while beating RLVR on average with TMPC</span></li>
+      <li><b>1.7B → 32B</b><span>Qwen3 reasoners improved by a single 4B AskR trained once and reused unchanged</span></li>
+    </ul>
+  </header>
+
+  <section id="idea">
+    <div class="wrap">
+      <div class="intro">
+        <h2>Bring RLVR's signal inside the reasoner</h2>
+        <p class="lede">
+          RLVR improves reasoning by rewarding verifiable final answers, but only during training, and
+          only by updating the backbone. At test time there is no verifier. AskR keeps the backbone
+          frozen and turns its self-verification into a dense, internal reward over sub-questions and
+          sub-answers (SubQAs).
+        </p>
+      </div>
+      <figure class="fig">
+        <img src="static/images/rlvr_to_internal_reward.webp" width="2000" height="594" loading="lazy"
+             alt="Left: RLVR trains the backbone with an external, sparse reward on full trajectories. Right: AskR keeps the backbone frozen and scores multiple SubQAs with an internal, dense reward that a test-time optimizer maximizes.">
+        <figcaption><b>From external, sparse rewards to internal, dense ones.</b>
+          <span>Training-time RLVR needs a
+          trainable backbone and an external verifier. AskR needs neither at test time: the frozen
+          reasoner verifies its own SubQAs, and the optimizer maximizes that reward.</span></figcaption>
+      </figure>
+      <figure class="fig">
+        <img src="static/images/concept.webp" width="1999" height="579" loading="lazy"
+             alt="Left: a process reward model assigns values to thoughts and suffers from credit assignment. Right: AskR steers the reasoner toward SubQA trajectories whose self-verification scores are high when the answer is correct.">
+        <figcaption><b>Learning values versus learning what to ask.</b>
+          <span>A PRM must assign credit to each
+          thought from the final answer alone. AskR instead learns which states to expose, steering
+          toward SubQA trajectories where high self-verification goes with a correct answer.</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="case">
+    <div class="wrap">
+      <div class="intro">
+        <h2>Watch AskR ask</h2>
+        <p class="lede">AskR writes the sub-questions. The frozen reasoner answers them in one pass and checks its own
+          answers, and a test-time optimizer keeps the trajectory with the highest intrinsic reward.</p>
+      </div>
+
+      <div class="player" id="case-vision" data-steps="5">
+        <div class="stage">
+          <div class="scene">
+            <div class="photo">
+              <img src="static/images/truck.jpg" width="1600" height="1067" alt="A white truck behind trees and a guardrail; a small tissue box sits on its dashboard.">
+              <div class="marker reveal" data-from="2" data-to="2" aria-hidden="true"></div>
+              <div class="zoom reveal" data-from="2" style="--d: 2">
+                <img src="static/images/tissue_zoom.jpg" width="960" height="576" alt="Close-up of the dashboard: a small blue tissue box.">
+              </div>
+            </div>
+            <div class="qcard">
+              <p>What is the color of the tissue box?</p>
+              <ul class="opts">
+                <li>(a) gray</li><li>(b) white</li><li>(c) black</li><li class="correct" data-final="4">(d) blue</li>
+              </ul>
+            </div>
+            <div class="candidates reveal" data-from="4">
+              <p class="cand-title">Test-time optimizer: candidate trajectories <small>(illustrative scores)</small></p>
+              <ol>
+                <li class="cand reveal" data-from="4" style="--d: 1"><span>#1</span><span>(b) white</span><span class="bar"><i style="width: 25%"></i></span><span>0.25</span></li>
+                <li class="cand reveal" data-from="4" style="--d: 2"><span>#2</span><span>(d) blue</span><span class="bar"><i style="width: 75%"></i></span><span>0.75</span></li>
+                <li class="cand reveal" data-from="4" style="--d: 3"><span>#3</span><span>(a) gray</span><span class="bar"><i style="width: 50%"></i></span><span>0.50</span></li>
+                <li class="cand best reveal" data-from="4" style="--d: 4"><span>#4</span><span>(d) blue</span><span class="bar"><i style="width: 100%"></i></span><span>1.00</span></li>
+                <li class="cand reveal" data-from="4" style="--d: 5"><span>#5</span><span>(c) black</span><span class="bar"><i style="width: 25%"></i></span><span>0.25</span></li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="transcript">
+            <p class="hint reveal" data-from="0" data-to="0">Press play, or step through with the arrows, to watch AskR plan the sub-questions and the reasoner answer them.</p>
+            <div class="role asker reveal" data-from="1"><span class="badge" aria-hidden="true">?</span>AskR asks</div>
+            <div class="role reasoner reveal" data-from="2"><span class="badge" aria-hidden="true">A</span>Reasoner answers every sub-question and the problem in one pass</div>
+            <ol class="subqs">
+              <li class="subq reveal" data-from="1" data-answered="2">
+                <div class="q"><b>Q1</b>What objects/features are visible in the image? <span class="vbadge reveal" data-from="3" style="--d: 1">✓ verified</span></div>
+                <div class="a reveal" data-from="2" style="--d: 1">A white truck, a tree, some vegetation, a guardrail, a <em>tissue box</em>.</div>
+              </li>
+              <li class="subq reveal" data-from="1" data-answered="2">
+                <div class="q"><b>Q2</b>Can you identify any objects that resemble a tissue box? <span class="vbadge reveal" data-from="3" style="--d: 2">✓ verified</span></div>
+                <div class="a reveal" data-from="2" style="--d: 2">Yes, there is a small, rectangular <em>object on the dashboard</em> of the truck that resembles a tissue box.</div>
+              </li>
+              <li class="subq reveal" data-from="1" data-answered="2">
+                <div class="q"><b>Q3</b>If a tissue box is present, what is its color based on the visible features? <span class="vbadge reveal" data-from="3" style="--d: 3">✓ verified</span></div>
+                <div class="a reveal" data-from="2" style="--d: 3">The tissue box appears to be a <em>light purple or lavender</em> color.</div>
+              </li>
+              <li class="subq reveal" data-from="1" data-answered="2">
+                <div class="q"><b>Q4</b>Considering the options provided, which color best matches the tissue box's appearance? <span class="vbadge reveal" data-from="3" style="--d: 4">✓ verified</span></div>
+                <div class="a reveal" data-from="2" style="--d: 4">The color that best matches the tissue box's appearance is <em>blue</em>.</div>
+              </li>
+            </ol>
+            <p class="pred reveal" data-from="2" style="--d: 5">Final answer: (d) blue</p>
+            <div class="reward reveal" data-from="3" style="--d: 5">
+              <p>Intrinsic reward \(r_\phi = (1+1+1+1)/4 = 1.00\)</p>
+              <span class="bar"><i></i></span>
+            </div>
+            <div class="final reveal" data-from="4" style="--d: 6">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              Highest reward wins: option D (blue). Correct.
+            </div>
+          </div>
+        </div>
+
+        <ol class="rail" aria-label="Steps">
+          <li><button type="button">The question</button></li>
+          <li><button type="button">AskR asks</button></li>
+          <li><button type="button">Reasoner answers</button></li>
+          <li><button type="button">Self-verify</button></li>
+          <li><button type="button">Pick the best</button></li>
+        </ol>
+        <div class="controls">
+          <div class="ctl">
+            <button type="button" class="prev" aria-label="Previous step"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+            <button type="button" class="play" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+            <button type="button" class="next" aria-label="Next step"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+          </div>
+          <p class="caption" aria-live="polite"></p>
+        </div>
+        <template class="captions">
+          <p>A small object in a busy street photo. Answering in one shot means guessing at a few pixels.</p>
+          <p>AskR only asks. It writes four sub-questions that lead from finding the evidence to matching it with the options.</p>
+          <p>The frozen reasoner answers all four sub-questions, then the original question, in a single generation.</p>
+          <p>The same reasoner checks every SubQA. The intrinsic reward is the fraction it judges correct: here 4 of 4.</p>
+          <p>The test-time optimizer samples many trajectories and keeps the one with the highest intrinsic reward. Its answer, (d) blue, is correct.</p>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <section id="method">
+    <div class="wrap">
+      <div class="intro">
+        <h2>How AskR works</h2>
+        <p class="lede">Two models with separate jobs. The asker \(g_\phi\) only writes sub-questions and is the only
+          thing trained. The reasoner \(\pi_\theta\) answers, verifies and stays frozen throughout.</p>
+      </div>
+
+      <figure class="fig">
+        <img src="static/images/framework.webp" width="1999" height="1060" loading="lazy"
+             alt="AskR training: the asker writes sub-questions, the reasoner answers and self-verifies them, and the intrinsic reward is signed by final-answer correctness to form the training reward. Test time: the learned AskR and a test-time optimizer use the intrinsic reward to select better reasoning.">
+        <figcaption><b>Training and test time.</b>
+          <span>During training, only final-answer correctness supervises the
+          asker. At test time the verifier is gone; the optimizer uses the elicited reward alone.</span></figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li>
+          <h3>Ask</h3>
+          <p>The asker writes up to ten sub-questions. The frozen reasoner answers each one in turn.</p>
+          <div class="eq">\[ Q=(q_1,\dots,q_K)\sim g_\phi(\cdot\mid x) \]</div>
+        </li>
+        <li>
+          <h3>Verify</h3>
+          <p>The same reasoner judges each SubQA as correct or not. The intrinsic reward is the fraction judged correct.</p>
+          <div class="eq">\[ r_\phi(x,\tau)=(v_1+\dots+v_K)/K \]</div>
+        </li>
+        <li>
+          <h3>Learn what to ask</h3>
+          <p>GRPO trains the asker on the intrinsic reward, signed by final-answer correctness. No sub-question labels.</p>
+          <div class="eq">\[ R_\phi=(2V(\hat y,y)-1)\,r_\phi(x,\tau) \]</div>
+        </li>
+      </ol>
+
+      <div class="signer" id="signer">
+        <div>
+          <h3>Why sign the reward?</h3>
+          <p>Maximizing self-verification alone would teach the asker to pose easy questions. Signing it by
+            correctness rewards high scores only when they come with a right answer, so a high score
+            becomes evidence of correctness. Try it.</p>
+        </div>
+        <div class="signer-controls">
+          <div class="seg" role="group" aria-label="Final answer">
+            <button type="button" data-correct="1" aria-pressed="true">Answer correct</button>
+            <button type="button" data-correct="0" aria-pressed="false">Answer wrong</button>
+          </div>
+          <div class="slider">
+            <label for="r-slider"><span>Intrinsic reward \(r_\phi\)</span><output id="r-out">0.80</output></label>
+            <input id="r-slider" type="range" min="0" max="1" step="0.05" value="0.8">
+          </div>
+          <div>
+            <div class="meter" aria-hidden="true"><div class="zero"></div><div class="bar"></div></div>
+            <div class="meter-scale"><span>−1</span><span>0</span><span>+1</span></div>
+            <p class="verdict" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="results">
+    <div class="wrap">
+      <div class="intro">
+        <h2>Quantitative results</h2>
+        <p class="lede">Same reasoner, same optimizer, same search budget: swapping a trained PRM for AskR's
+          intrinsic reward helps under every optimizer, on text and on vision.</p>
+      </div>
+
+      <div class="chart-card">
+        <div class="seg view-toggle" role="group" aria-label="View">
+          <button type="button" data-view="chart" aria-pressed="true">Chart</button>
+          <button type="button" data-view="table" aria-pressed="false">Full table</button>
+        </div>
+        <div class="view" data-view="chart">
+        <div class="chips" role="group" aria-label="Benchmark">
+          <button type="button" data-key="langAvg" aria-pressed="true">Language avg.</button>
+          <button type="button" data-key="mmlu" aria-pressed="false">MMLU-Pro</button>
+          <button type="button" data-key="lab" aria-pressed="false">LAB-Bench</button>
+          <button type="button" data-key="sci" aria-pressed="false">SciEval</button>
+          <span class="sep" aria-hidden="true"></span>
+          <button type="button" data-key="visAvg" aria-pressed="false">Vision avg.</button>
+          <button type="button" data-key="vstar" aria-pressed="false">V* Bench</button>
+          <button type="button" data-key="mmstar" aria-pressed="false">MMStar</button>
+          <button type="button" data-key="cv" aria-pressed="false">CV-Bench</button>
+        </div>
+        <svg id="bars" viewBox="0 0 720 340" role="img" aria-labelledby="bars-title"><title id="bars-title">Accuracy of PRM and AskR rewards under BoN, TPO and TMPC</title></svg>
+        <div class="legend">
+          <span><i style="background:var(--prm)"></i>PRM reward</span>
+          <span><i style="background:var(--lilac)"></i>AskR reward</span>
+          <span><i class="line" style="border-color:var(--signal)"></i>RLVR (trained backbone)</span>
+          <span><i class="line" style="border-color:var(--ink-faint)"></i>CoT</span>
+        </div>
+        </div>
+        <div class="view scroll" data-view="table" hidden>
+          <table>
+            <caption class="sr-only">Accuracy (%) on language-only and vision-language benchmarks, mean over 8 runs. Backbones: Qwen2.5-7B-Instruct and Qwen2.5-VL-7B-Instruct.</caption>
+            <thead>
+              <tr><th scope="col">Method</th><th scope="col">MMLU-Pro</th><th scope="col">LAB-Bench</th><th scope="col">SciEval</th><th scope="col">Avg.</th><th scope="col" class="split">V* Bench</th><th scope="col">MMStar</th><th scope="col">CV-Bench</th><th scope="col">Avg.</th></tr>
+            </thead>
+            <tbody id="full-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3>One asker, many reasoners</h3>
+      <div class="pair">
+        <div class="prose">
+          <p>We train one AskR from Qwen3-4B and reuse it, unchanged, to steer Qwen3 reasoners from 1.7B to 32B
+            (average of MMLU-Pro, LAB-Bench and SciEval, with TMPC).</p>
+          <p>It beats chain-of-thought at every scale: +9.96 points at 1.7B and still +4.70 at 32B, a reasoner eight
+            times its size. The untrained asker gains at most +1.69, so the improvement comes from what AskR learned
+            to ask.</p>
+        </div>
+        <figure class="fig">
+          <img src="static/figures/reasoner_scale.svg" width="403" height="288" loading="lazy" alt="Average accuracy versus Qwen3 reasoner scale from 1.7B to 32B. Trained AskR is highest at every scale; untrained AskR tracks chain-of-thought.">
+        </figure>
+      </div>
+
+      <h3>Across model families</h3>
+      <div class="prose"><p>Trained from Qwen3-4B or Gemma3-4B, AskR with TMPC beats both chain-of-thought and RLVR
+        on average, on text and on vision.</p></div>
+      <div class="scroll">
+        <table>
+          <caption class="sr-only">Accuracy (%) with Qwen3-4B and Gemma3-4B backbones.</caption>
+          <thead><tr><th scope="col">Backbone / method</th><th scope="col">MMLU-Pro</th><th scope="col">LAB-Bench</th><th scope="col">SciEval</th><th scope="col">Avg.</th><th scope="col" class="split">V* Bench</th><th scope="col">MMStar</th><th scope="col">CV-Bench</th><th scope="col">Avg.</th></tr></thead>
+          <tbody id="family-table"></tbody>
+        </table>
+      </div>
+
+      <h3>Training makes the reward predictive</h3>
+      <div class="pair">
+        <div class="prose">
+          <p>A reward is only useful if it tracks correctness. Before training, the reasoner's self-verification
+            barely predicts whether the final answer is right (AUROC 0.55 and 0.60, against 0.5 for chance). After training, the same
+            frozen reasoner's checks become clearly predictive, on both backbones.</p>
+          <p>Training on correctness alone does not get there: replacing the signed reward with answer
+            correctness drops the TMPC average from 57.17 to 53.69 on Qwen2.5-7B and from 66.57 to 61.85 on Qwen3-4B.</p>
+        </div>
+        <figure class="fig">
+          <img src="static/figures/reward_alignment.svg" width="248" height="163" loading="lazy" alt="Pearson, Spearman and AUROC between intrinsic reward and correctness, before and after AskR training, for Qwen2.5-7B and Qwen3-4B. All rise after training.">
+        </figure>
+      </div>
+
+      <h3>What the reward buys</h3>
+      <div class="pair figs">
+        <figure class="fig">
+          <img src="static/figures/askr_vs_cot_passn.svg" width="281" height="279" loading="lazy" alt="Grid comparing AskR Pass@1 within intrinsic-reward buckets against CoT Pass@N for N from 1 to 8.">
+          <figcaption><b>One high-reward answer versus many samples.</b> On MMLU-Pro, AskR's single answer in the top reward bucket (63.5) beats CoT given eight tries (61.6).</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="static/figures/reward_distribution.svg" width="425" height="281" loading="lazy" alt="Density of intrinsic reward for direct sampling, BoN, TPO and TMPC. TMPC concentrates most mass near a reward of 1.">
+          <figcaption><b>Optimizers climb the reward.</b> Distribution of intrinsic reward on MMLU-Pro for direct
+            sampling and three optimizers. TMPC moves the most mass toward a reward of 1.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Citation: hidden until the camera-ready BibTeX is final.
+   ================= Citation ================= 
+  <section id="citation">
+    <div class="wrap">
+      <h2>Citation</h2>
+      <div class="bib">
+        <button type="button" id="copy-bib">Copy</button>
+        <pre><code id="bibtex">@inproceedings{wang2026askr,
+  title     = {{RLVR} from Within: Learning to Ask to Elicit Intrinsic Rewards for Test-Time Reasoning},
+  author    = {Wang, Kuang-Da and Lin, Kai-Jie and Ko, Guo-Xun and Lin, Yu-Heng and Hung, Yu Heng and
+               Bartley, Travis M. and Ding, Shuoyang and Wang, Yu-Chiang Frank and Yang, Chao-Han Huck and
+               Liu, Guan-Ting and Peng, Wen-Chih and Hsieh, Ping-Chun},
+  booktitle = {Managing Agents that Manage Agents: Workshop on Responsible Use of Meta-Agents (NeurIPS 2026)},
+  year      = {2026}
+}</code></pre>
+      </div>
+    </div>
+  </section>
+  -->
+</main>
+
+<footer>
+  <div class="wrap">
+    RL and Bandits Lab (REAL). Questions: <a href="mailto:pinghsieh@nycu.edu.tw">pinghsieh@nycu.edu.tw</a> and
+    <a href="mailto:gdwang.cs10@nycu.edu.tw">gdwang.cs10@nycu.edu.tw</a>.
+  </div>
+</footer>
+</body>
+</html>
