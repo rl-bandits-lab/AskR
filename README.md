@@ -127,6 +127,7 @@ export LLM_JUDGE_MODEL=...              # optional: override the judge model
 | `vstar` | [V* Bench](https://huggingface.co/datasets/craigwu/vstar_bench) | test | image |
 | `mmstar` | [MMStar](https://huggingface.co/datasets/Lin-Chen/MMStar) (coarse, fine-grained perception, instance reasoning) | val | image |
 | `cvbench` | [CV-Bench](https://huggingface.co/datasets/nyu-visionx/CV-Bench) (2D) | test | image |
+
 \* LAB-Bench is an evaluation-only benchmark; its Hugging Face release puts every question in a split named `train`.
 
 ## Acknowledgements
