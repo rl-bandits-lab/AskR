@@ -36,6 +36,7 @@
       });
       player.querySelectorAll("[data-answered]").forEach((el) => el.classList.toggle("answered", step >= Number(el.dataset.answered)));
       player.querySelectorAll("[data-final]").forEach((el) => el.classList.toggle("on-final", step >= Number(el.dataset.final)));
+      player.querySelectorAll("[data-active]").forEach((el) => el.classList.toggle("active", el.dataset.active.split(",").map(Number).includes(step)));
 
       railButtons.forEach((b, i) => {
         b.classList.toggle("done", i < step);
@@ -70,8 +71,9 @@
       if (step === last) go(0);
       setPlaying(true);
       timer = setInterval(() => {
-        if (step >= last) return pause();
-        go(step + 1);
+        if (step < last) go(step + 1);
+        else if ("loop" in player.dataset) go(0);
+        else pause();
       }, 3400);
     }
 
@@ -83,6 +85,15 @@
       if (e.key === "ArrowRight") { pause(); go(step + 1); }
       if (e.key === "ArrowLeft") { pause(); go(step - 1); }
     });
+
+    if ("autoplay" in player.dataset && !reduceMotion && "IntersectionObserver" in window) {
+      let touched = false;
+      ["click", "keydown"].forEach((t) => player.addEventListener(t, () => { touched = true; }, true));
+      new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) pause();
+        else if (!touched && !timer) start();
+      }, { threshold: 0.35 }).observe(player);
+    }
 
     render();
   });
@@ -278,11 +289,14 @@
     draw("langAvg", false);
   }
 
-  const viewButtons = [...document.querySelectorAll(".view-toggle button")];
-  viewButtons.forEach((b) => b.addEventListener("click", () => {
-    viewButtons.forEach((x) => x.setAttribute("aria-pressed", x === b));
-    document.querySelectorAll(".chart-card .view").forEach((v) => { v.hidden = v.dataset.view !== b.dataset.view; });
-  }));
+  document.querySelectorAll(".view-toggle").forEach((toggle) => {
+    const buttons = [...toggle.querySelectorAll("button")];
+    const views = [...toggle.parentElement.querySelectorAll(":scope > .view")];
+    buttons.forEach((b) => b.addEventListener("click", () => {
+      buttons.forEach((x) => x.setAttribute("aria-pressed", x === b));
+      views.forEach((v) => { v.hidden = v.dataset.view !== b.dataset.view; });
+    }));
+  });
 
   const copy = document.getElementById("copy-bib");
   if (copy) {
